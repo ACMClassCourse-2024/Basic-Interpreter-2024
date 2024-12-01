@@ -1,0 +1,3 @@
+/home/tomorrow_arc1/C++learn/Basic-Interpreter-2024/build/CMakeFiles/code.dir
+/home/tomorrow_arc1/C++learn/Basic-Interpreter-2024/build/CMakeFiles/edit_cache.dir
+/home/tomorrow_arc1/C++learn/Basic-Interpreter-2024/build/CMakeFiles/rebuild_cache.dir
