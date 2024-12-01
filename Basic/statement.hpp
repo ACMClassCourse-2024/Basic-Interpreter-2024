@@ -23,7 +23,6 @@
 #include "Utils/strlib.hpp"
 
 class Program;
-
 /*
  * Class: Statement
  * ----------------
@@ -57,6 +56,7 @@ public:
  */
 
     virtual ~Statement();
+    virtual void kill();
 
 /*
  * Method: execute
@@ -68,8 +68,8 @@ public:
  * method takes an EvalState object for looking up variables or
  * controlling the operation of the interpreter.
  */
-
-    virtual void execute(EvalState &state, Program &program) = 0;
+    //这些执行对EVAL与Pro起作用。
+    virtual void execute(EvalState& state, Program& program) = 0;
 
 };
 
@@ -79,10 +79,73 @@ public:
  * definitions for the individual statement forms.  Each of
  * those subclasses must define a constructor that parses a
  * statement from a scanner and a method called execute,
- * which executes that statement.  If the private data for
+ * which executes that statement. If the private data for
  * a subclass includes data allocated on the heap (such as
  * an Expression object), the class implementation must also
  * specify its own destructor method to free that memory.
  */
+
+class Command :public Statement {
+private:
+    enum type {
+        RUN,LIST,CLEAR
+    };
+    type type;
+public:
+    Command(TokenScanner& token);
+    virtual void execute(EvalState& state, Program& program);
+};
+
+class Control :public Statement {
+private:
+    int object_pointer_;
+public:
+    Control();
+    ~Control();
+    void Set(int a);
+    virtual void kill();
+    virtual void jump(Program& program);
+};
+
+class GOTO :public Control {
+private:
+public:
+    GOTO(TokenScanner& token);
+    virtual void execute(EvalState& state, Program& program);
+};
+
+class IF :public Control {
+private:
+    Expression* lhs;
+    Expression* rhs;
+    char compare;
+public:
+    IF(TokenScanner& token);
+    ~IF();
+    virtual void kill();
+    virtual void execute(EvalState& state, Program& program);
+};
+
+class END :public Control {
+private:
+public:
+    END(TokenScanner& token);
+    virtual void execute(EvalState& state, Program& program);
+};
+
+class Sequential :public Statement {
+private:
+    enum type1 {
+        REM, LET, INPUT, PRINT
+    };
+    type1 type;
+    std::string input;
+    Expression* exp;
+public:
+    Sequential(TokenScanner& token);
+    ~Sequential();
+    virtual void kill();
+    virtual void execute(EvalState& state, Program& program);
+};
 
 #endif

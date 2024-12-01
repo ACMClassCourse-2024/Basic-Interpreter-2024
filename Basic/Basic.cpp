@@ -18,11 +18,14 @@
 /* Function prototypes */
 
 void processLine(std::string line, Program &program, EvalState &state);
+void tokenToString(TokenScanner&, std::string&);
 
 /* Main program */
 
 int main() {
+    //给出变量记录state（string->int map)
     EvalState state;
+    //给出程序记录program：int->string map
     Program program;
     //cout << "Stub implementation of BASIC" << endl;
     while (true) {
@@ -56,7 +59,94 @@ void processLine(std::string line, Program &program, EvalState &state) {
     scanner.ignoreWhitespace();
     scanner.scanNumbers();
     scanner.setInput(line);
-
-    //todo
+    std::string next = scanner.nextToken();
+    TokenType type = scanner.getTokenType(next);
+    switch (type) {
+    case NUMBER: {
+        int number = stringToInteger(next);
+        if(!scanner.hasMoreTokens()){
+            program.removeSourceLine(number);
+            return;
+        }
+        next = scanner.nextToken();
+        scanner.saveToken(next);
+        std::string say;
+        tokenToString(scanner, say);
+        scanner.setInput(say);
+        if (next == "REM") {
+            Sequential* statement_1=new Sequential(scanner);
+            program.addSourceLine(number, say, *statement_1);
+        }
+        else if (next == "LET") {
+            Sequential* statement_1=new Sequential(scanner);
+            program.addSourceLine(number, say, *statement_1);
+        }
+        else if (next == "PRINT") {
+            Sequential* statement_1=new Sequential(scanner);
+            program.addSourceLine(number, say, *statement_1);
+        }
+        else if (next == "INPUT") {
+            Sequential* statement_1=new Sequential(scanner);
+            program.addSourceLine(number, say, *statement_1);
+        }
+        else if (next == "GOTO") {
+            GOTO* statement_1=new GOTO(scanner);
+            program.addSourceLine(number, say, *statement_1);
+        }
+        else if (next == "END") {
+            END* statement_1=new END(scanner);
+            program.addSourceLine(number, say, *statement_1);
+        }
+        else if (next == "IF") {
+            IF* statement_1=new IF(scanner);
+            program.addSourceLine(number, say, *statement_1);
+        }
+        else{
+            error("SYNTAXERROR");
+        }
+        break;
+    }
+    case WORD: {
+        if(next=="QUIT"){
+            exit(0);
+        }
+        else if(next=="HELP"){
+            std::cout<<"???";
+        }
+        else if(next=="LET"){
+            scanner.saveToken(next);
+            Sequential statement_1(scanner);
+            statement_1.execute(state,program);
+        }
+        else if(next=="PRINT"){
+            scanner.saveToken(next);
+            Sequential statement_1(scanner);
+            statement_1.execute(state,program);
+        }
+        else if(next=="INPUT"){
+            scanner.saveToken(next);
+            Sequential statement_1(scanner);
+            statement_1.execute(state,program);
+        }
+        else if(next=="RUN"||next=="LIST"||next=="CLEAR"){
+            scanner.saveToken(next);
+            Command statement_1(scanner);
+            statement_1.execute(state,program);
+        }
+        else{
+            error("SYNTAXERROR");
+        }
+        break;
+    }
+    default: {
+        error("SYNTAXERROR");
+    }
+    }
 }
 
+void tokenToString(TokenScanner& copies, std::string& object) {
+    while (copies.hasMoreTokens()) {
+        object += copies.nextToken();
+        object += ' ';
+    }
+}

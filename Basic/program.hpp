@@ -14,9 +14,7 @@
 #include <unordered_map>
 #include "statement.hpp"
 
-
 class Statement;
-
 /*
  * This class stores the lines in a BASIC program.  Each line
  * in the program is stored in order according to its line number.
@@ -59,7 +57,7 @@ public:
  * Removes all lines from the program.
  */
 
-    void clear();
+    void clear(EvalState&);
 
 /*
  * Method: addSourceLine
@@ -72,7 +70,7 @@ public:
  * program in the correct sequence.
  */
 
-    void addSourceLine(int lineNumber, const std::string& line);
+    void addSourceLine(int lineNumber, const std::string& line, Statement& info);
 
 /*
  * Method: removeSourceLine
@@ -93,7 +91,7 @@ public:
  * Returns the program line with the specified line number.
  * If no such line exists, this method returns the empty string.
  */
-
+    //获取某行程序陈述。
     std::string getSourceLine(int lineNumber);
 
 /*
@@ -106,7 +104,8 @@ public:
  * exists, the memory for that statement is reclaimed.
  */
 
-    void setParsedStatement(int lineNumber, Statement *stmt);
+    //更改某行程序。
+    void setParsedStatement(int lineNumber,Statement& stmt);
 
 /*
  * Method: getParsedStatement
@@ -116,8 +115,8 @@ public:
  * specified line number.  If no value has been set, this method
  * returns NULL.
  */
-
-    Statement *getParsedStatement(int lineNumber);
+    //获取某行程序,若不存在，返回nullptr。
+    Statement* getParsedStatement(int lineNumber);
 
 /*
  * Method: getFirstLineNumber
@@ -128,6 +127,7 @@ public:
  */
 
     int getFirstLineNumber();
+    int getLastLineNumber();
 
 /*
  * Method: getNextLineNumber
@@ -140,13 +140,22 @@ public:
 
     int getNextLineNumber(int lineNumber);
 
-    //more func to add
-    //todo
+    //依序列出程序
+    void list_program_();
+
+    //依序运行程序，直至pointer=-1(end)或 pointer>max_line.
+    //输入变量库，每条程序的执行可以对变量库进行更改。
+    void run_program_(EvalState&);
+
+    //更改pointer,成功返回1，未成功返回0（包括设置为-1）
+    bool set_pointer(int object);
 
 private:
-
-    // Fill this in with whatever types and instance variables you need
-    //todo
+    int max_line;
+    int pointer;
+    std::set<int> line_numbers_;
+    std::unordered_map<int, std::string> storage;
+    std::unordered_map<int, Statement*> ram;
 };
 
 #endif
